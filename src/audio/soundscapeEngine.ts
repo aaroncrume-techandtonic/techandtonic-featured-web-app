@@ -1,45 +1,79 @@
 import { Audio } from 'expo-av';
+import type { AVPlaybackSource } from 'expo-av';
 
 export type SoundscapeMode = 'Focus' | 'Relax' | 'Sleep' | 'Move';
 
-type StemUris = {
-  drone?: string;
-  rhythm?: string;
+export type StemKey =
+  | 'drone'
+  | 'rhythm'
+  | 'textureA'
+  | 'textureB'
+  | 'textureC'
+  | 'textureD'
+  | 'textureE';
+
+export type StemSources = {
+  [K in StemKey]?: AVPlaybackSource;
 };
 
-type ModeMix = {
-  droneVolume: number;
-  rhythmVolume: number;
-};
+type ModeMix = Record<StemKey, number>;
+
+const STEM_KEYS: StemKey[] = [
+  'drone',
+  'rhythm',
+  'textureA',
+  'textureB',
+  'textureC',
+  'textureD',
+  'textureE',
+];
 
 const MODE_MIX: Record<SoundscapeMode, ModeMix> = {
   Focus: {
-    droneVolume: 0.35,
-    rhythmVolume: 0.75,
+    drone: 0.32,
+    rhythm: 0.7,
+    textureA: 0.2,
+    textureB: 0.22,
+    textureC: 0.3,
+    textureD: 0.1,
+    textureE: 0.12,
   },
   Relax: {
-    droneVolume: 0.65,
-    rhythmVolume: 0.2,
+    drone: 0.62,
+    rhythm: 0.18,
+    textureA: 0.38,
+    textureB: 0.4,
+    textureC: 0.2,
+    textureD: 0.2,
+    textureE: 0.2,
   },
   Sleep: {
-    droneVolume: 0.9,
-    rhythmVolume: 0,
+    drone: 0.78,
+    rhythm: 0,
+    textureA: 0.5,
+    textureB: 0.35,
+    textureC: 0.08,
+    textureD: 0.45,
+    textureE: 0.5,
   },
   Move: {
-    droneVolume: 0.25,
-    rhythmVolume: 0.95,
+    drone: 0.2,
+    rhythm: 0.92,
+    textureA: 0.1,
+    textureB: 0.15,
+    textureC: 0.45,
+    textureD: 0.32,
+    textureE: 0.08,
   },
 };
 
 const FADE_STEP_MS = 100;
 
 export class SoundscapeEngine {
-  private droneSound: Audio.Sound | null = null;
-  private rhythmSound: Audio.Sound | null = null;
-  private droneVolume = MODE_MIX.Focus.droneVolume;
-  private rhythmVolume = MODE_MIX.Focus.rhythmVolume;
+  private sounds: Partial<Record<StemKey, Audio.Sound>> = {};
+  private volumes: ModeMix = { ...MODE_MIX.Focus };
 
-  async init(stemUris: StemUris): Promise<void> {
+  async init(stemSources: StemSources): Promise<void> {
     await Audio.setAudioModeAsync({
       playsInSilentModeIOS: true,
       staysActiveInBackground: true,
@@ -47,58 +81,50 @@ export class SoundscapeEngine {
       playThroughEarpieceAndroid: false,
     });
 
-    this.droneSound = await this.loadStem(stemUris.drone, MODE_MIX.Focus.droneVolume);
-    this.rhythmSound = await this.loadStem(stemUris.rhythm, MODE_MIX.Focus.rhythmVolume);
+    for (const key of STEM_KEYS) {
+      this.sounds[key] = await this.loadStem(stemSources[key], MODE_MIX.Focus[key]);
+    }
   }
 
   hasLoadedStems(): boolean {
-    return Boolean(this.droneSound || this.rhythmSound);
+    return STEM_KEYS.some((key) => Boolean(this.sounds[key]));
   }
 
   async play(): Promise<void> {
-    await Promise.all([
-      this.droneSound?.playAsync(),
-      this.rhythmSound?.playAsync(),
-    ]);
+    const playable = STEM_KEYS.map((key) => this.sounds[key]?.playAsync());
+    await Promise.all(playable);
   }
 
   async pause(): Promise<void> {
-    await Promise.all([
-      this.droneSound?.pauseAsync(),
-      this.rhythmSound?.pauseAsync(),
-    ]);
+    const playable = STEM_KEYS.map((key) => this.sounds[key]?.pauseAsync());
+    await Promise.all(playable);
   }
 
   async setMode(mode: SoundscapeMode, fadeMs = 1200): Promise<void> {
     const mix = MODE_MIX[mode];
+    const fades = STEM_KEYS.map((key) =>
+      this.fadeSoundVolume(this.sounds[key] ?? null, this.volumes[key], mix[key], fadeMs)
+    );
 
-    await Promise.all([
-      this.fadeSoundVolume(this.droneSound, this.droneVolume, mix.droneVolume, fadeMs),
-      this.fadeSoundVolume(this.rhythmSound, this.rhythmVolume, mix.rhythmVolume, fadeMs),
-    ]);
-
-    this.droneVolume = mix.droneVolume;
-    this.rhythmVolume = mix.rhythmVolume;
+    await Promise.all(fades);
+    this.volumes = { ...mix };
   }
 
   async dispose(): Promise<void> {
-    await Promise.all([
-      this.droneSound?.unloadAsync(),
-      this.rhythmSound?.unloadAsync(),
-    ]);
+    const unloads = STEM_KEYS.map((key) => this.sounds[key]?.unloadAsync());
+    await Promise.all(unloads);
 
-    this.droneSound = null;
-    this.rhythmSound = null;
+    this.sounds = {};
   }
 
-  private async loadStem(uri: string | undefined, volume: number): Promise<Audio.Sound | null> {
-    if (!uri) {
+  private async loadStem(source: AVPlaybackSource | undefined, volume: number): Promise<Audio.Sound | null> {
+    if (!source) {
       return null;
     }
 
     const sound = new Audio.Sound();
     await sound.loadAsync(
-      { uri },
+      source,
       {
         isLooping: true,
         shouldPlay: false,

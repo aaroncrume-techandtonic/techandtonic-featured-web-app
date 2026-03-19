@@ -10,12 +10,20 @@ import {
   View,
 } from 'react-native';
 
-import { SoundscapeEngine, type SoundscapeMode } from './src/audio/soundscapeEngine';
+import {
+  SoundscapeEngine,
+  type SoundscapeMode,
+  type StemSources,
+} from './src/audio/soundscapeEngine';
 
-const STEM_URIS = {
-  // Temporary public demo stems. Replace with your own licensed loop stems for production.
-  drone: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-  rhythm: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+const STEM_SOURCES: StemSources = {
+  drone: require('./Crystalline_Depths.mp3'),
+  rhythm: require('./Crystalline_Currents.mp3'),
+  textureA: require('./Crystalline_Echos.mp3'),
+  textureB: require('./Cerebral_Echoes.mp3'),
+  textureC: require('./Cerebral_Echoes (1).mp3'),
+  textureD: require('./Cerebral_Echoes (2).mp3'),
+  textureE: require('./Subliminal_Slumber.mp3'),
 };
 
 type AppStage = 'onboarding' | 'paywall' | 'player';
@@ -34,7 +42,7 @@ export default function App() {
     let mounted = true;
 
     async function bootAudio() {
-      await engineRef.current.init(STEM_URIS);
+      await engineRef.current.init(STEM_SOURCES);
 
       if (mounted) {
         setHasStems(engineRef.current.hasLoadedStems());
@@ -115,7 +123,7 @@ export default function App() {
 
         {isReady && !hasStems && (
           <Text style={styles.notice}>
-            Add stem URLs in STEM_URIS to test playback. UI and mixing controls are ready.
+            No audio stems loaded. Verify the bundled MP3 files are present in the app root.
           </Text>
         )}
 
