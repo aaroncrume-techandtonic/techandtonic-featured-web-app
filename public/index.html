@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8D Audio & ADHD | Tech & Tonic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        @keyframes gradient-xy {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .animate-gradient-xy {
+            background-size: 200% 200%;
+            animation: gradient-xy 15s ease infinite;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            height: 350px;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 850: '#151e2e', 950: '#0b1120' },
+                        brand: {
+                            purple: '#8b5cf6',
+                            indigo: '#6366f1',
+                            teal: '#14b8a6',
+                            neon: '#06b6d4'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-300 antialiased selection:bg-brand-indigo selection:text-white">
+    <div class="fixed inset-0 z-[-1] bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/20 animate-gradient-xy"></div>
+
+    <nav class="sticky top-0 z-50 glass-panel border-b-0 border-slate-800/50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="font-display font-bold text-xl tracking-tight text-white flex items-center gap-2">
+                <span class="text-brand-neon">∿</span> 8D_FOCUS
+            </div>
+            <div class="hidden md:flex space-x-8 text-sm font-medium">
+                <a href="#science" class="hover:text-brand-neon transition-colors duration-300">The Science</a>
+                <a href="#architecture" class="hover:text-brand-neon transition-colors duration-300">Sound Profile</a>
+                <a href="#generator" class="px-4 py-2 bg-brand-indigo/10 text-brand-indigo border border-brand-indigo/30 rounded-full hover:bg-brand-indigo hover:text-white transition-all duration-300">AI Generator</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="max-w-5xl mx-auto px-6 py-24 md:py-32 text-center flex flex-col items-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 mb-8 text-xs font-bold text-brand-teal bg-brand-teal/10 rounded-full border border-brand-teal/20 backdrop-blur-sm">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-teal opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-teal"></span>
+            </span>
+            Interactive Acoustic Analysis
+        </div>
+        <h1 class="font-display text-5xl md:text-7xl font-black text-white mb-6 tracking-tight leading-tight">
+            Anchor the <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-indigo to-brand-neon">ADHD Mind</span>
+        </h1>
+        <p class="text-lg md:text-xl text-slate-400 max-w-2xl mb-12 leading-relaxed">
+            Discover how 8D spatial audio uses bilateral stimulation to satisfy the brain's craving for distraction, locking your foreground attention onto deep work.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4">
+            <a href="#generator" class="px-8 py-4 bg-white text-slate-950 rounded-xl font-bold hover:scale-105 transition-transform duration-300 shadow-[0_0_30px_rgba(99,102,241,0.3)]">Launch AI Generator</a>
+            <a href="#science" class="px-8 py-4 glass-panel rounded-xl font-bold text-white hover:bg-slate-800/80 transition-all duration-300">Explore the Data</a>
+        </div>
+    </header>
+
+    <section id="science" class="py-24 relative">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="glass-panel rounded-3xl p-8 md:p-12">
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-8">
+                        <div>
+                            <h2 class="font-display text-3xl md:text-4xl font-bold text-white mb-4">The Bilateral Anchor</h2>
+                            <p class="text-slate-400 leading-relaxed text-lg">
+                                ADHD brains often have an under-stimulated prefrontal cortex, causing a constant search for novel stimuli. 8D audio provides continuous, predictable movement that occupies this background craving.
+                            </p>
+                        </div>
+                        <div class="grid gap-4">
+                            <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-700/50 hover:border-brand-indigo/50 transition-colors">
+                                <h3 class="font-bold text-white flex items-center gap-3 mb-2"><span class="text-brand-purple text-xl">Window Wiper</span></h3>
+                                <p class="text-sm text-slate-400">Smooth panning from left to right ear activates alternating brain hemispheres, grounding the nervous system.</p>
+                            </div>
+                            <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-700/50 hover:border-brand-teal/50 transition-colors">
+                                <h3 class="font-bold text-white flex items-center gap-3 mb-2"><span class="text-brand-teal text-xl">Optimal Arousal</span></h3>
+                                <p class="text-sm text-slate-400">Acts as a physiological fidget spinner, helping reduce attention drift.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-700 shadow-2xl relative">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-brand-indigo to-brand-purple opacity-20 blur rounded-2xl"></div>
+                        <h4 class="relative font-display font-bold text-white mb-1 text-center">Focus Stability Over Time</h4>
+                        <p class="relative text-center text-xs text-slate-500 mb-6 font-mono uppercase tracking-widest">Theoretical Model</p>
+                        <div class="chart-container relative">
+                            <canvas id="focusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="architecture" class="py-24">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-3xl md:text-5xl font-bold text-white mb-6">Deconstructing the Sound</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto text-lg">Click any segment below to inspect the required acoustic parameters.</p>
+            </div>
+            <div class="grid lg:grid-cols-12 gap-8 items-stretch">
+                <div class="lg:col-span-7 glass-panel p-8 rounded-3xl flex flex-col justify-center">
+                    <div class="chart-container" style="height: 400px;">
+                        <canvas id="componentsChart"></canvas>
+                    </div>
+                </div>
+                <div class="lg:col-span-5 relative group h-full">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-brand-teal to-brand-neon opacity-20 blur rounded-3xl transition-opacity duration-500 group-hover:opacity-40"></div>
+                    <div id="details-panel" class="relative bg-slate-900 h-full p-8 rounded-3xl border border-slate-700 flex flex-col justify-center transition-all duration-300">
+                        <div class="text-brand-neon text-5xl mb-6">Interactive</div>
+                        <h3 class="font-display text-3xl font-bold text-white mb-4">Profile</h3>
+                        <p class="text-slate-400 text-lg leading-relaxed mb-8">Select a chart segment to reveal prompt extraction details.</p>
+                        <div class="p-4 bg-slate-800/50 rounded-xl border border-slate-700 animate-pulse">
+                            <p class="text-sm font-mono text-brand-teal">Waiting for interaction...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="generator" class="py-24 relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-96 bg-brand-indigo/20 blur-[120px] rounded-full pointer-events-none"></div>
+        <div class="max-w-6xl mx-auto px-6 relative">
+            <div class="glass-panel rounded-3xl p-8 md:p-12 border-brand-indigo/20">
+                <div class="text-center mb-12">
+                    <h2 class="font-display text-3xl md:text-4xl font-bold text-white mb-4">Prompt Synthesizer</h2>
+                    <p class="text-slate-400">Generate optimized prompts for AI audio tools.</p>
+                </div>
+                <div class="grid lg:grid-cols-2 gap-12">
+                    <div class="space-y-8">
+                        <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                            <label class="block text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">1. Cognitive State</label>
+                            <select id="task-select" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-4 py-4">
+                                <option value="deep-work">Deep Work / Coding (Hyperfocus)</option>
+                                <option value="reading">Reading / Studying (Calm Retention)</option>
+                                <option value="creative">Creative Ideation (Flow State)</option>
+                            </select>
+                        </div>
+                        <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                            <label class="block text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">2. Acoustic Texture</label>
+                            <select id="genre-select" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl px-4 py-4">
+                                <option value="ambient">Dark Ambient / Drone (Minimal)</option>
+                                <option value="synthwave">Atmospheric Synthwave (Rhythmic)</option>
+                                <option value="brown-noise">Textural Brown Noise (Masking)</option>
+                            </select>
+                        </div>
+                        <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                            <label class="block text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">3. Oscillation Speed</label>
+                            <div class="flex flex-col gap-4">
+                                <input type="range" id="panning-speed" min="1" max="3" value="2" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-purple">
+                                <div class="flex justify-between text-xs font-mono text-slate-500">
+                                    <span>Slow (12s)</span>
+                                    <span id="panning-label" class="text-brand-purple font-bold">Standard (8s)</span>
+                                    <span>Fast (4s)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="generate-btn" class="w-full relative group overflow-hidden rounded-xl p-[1px]">
+                            <span class="absolute inset-0 bg-gradient-to-r from-brand-indigo via-brand-purple to-brand-neon rounded-xl opacity-70 group-hover:opacity-100 transition-opacity duration-300"></span>
+                            <div class="relative bg-slate-950 px-8 py-4 rounded-xl transition-all duration-300 group-hover:bg-opacity-0">
+                                <span class="font-bold text-white tracking-wide">Generate Prompt Workflow</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="flex flex-col h-full bg-slate-900 rounded-2xl border border-slate-700 shadow-xl overflow-hidden">
+                        <div class="bg-slate-950 px-6 py-4 flex justify-between items-center border-b border-slate-800">
+                            <span class="ml-2 font-mono text-xs text-slate-500">output.txt</span>
+                            <button id="copy-btn" class="text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white px-4 py-2 rounded-lg transition-all">Copy</button>
+                        </div>
+                        <div class="p-6 flex-grow relative">
+                            <textarea id="prompt-output" readonly class="absolute inset-6 w-[calc(100%-3rem)] h-[calc(100%-3rem)] bg-transparent text-brand-neon font-mono text-sm resize-none focus:outline-none leading-relaxed" placeholder="Awaiting generation parameters..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-slate-800/50 bg-slate-950/50 py-12 text-center text-sm">
+        <p class="text-slate-500 font-medium">Built for Tech & Tonic.</p>
+    </footer>
+
+    <script>
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctxFocus = document.getElementById('focusChart').getContext('2d');
+            const gradient8D = ctxFocus.createLinearGradient(0, 0, 0, 400);
+            gradient8D.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
+            gradient8D.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+            new Chart(ctxFocus, {
+                type: 'line',
+                data: {
+                    labels: ['0m', '10m', '20m', '30m', '40m', '50m', '60m'],
+                    datasets: [
+                        { label: 'Standard Audio', data: [40, 65, 30, 80, 20, 45, 10], borderColor: '#475569', borderWidth: 2, borderDash: [5, 5], tension: 0.4, pointRadius: 0 },
+                        { label: '8D Spatial Audio', data: [40, 55, 65, 70, 75, 72, 78], borderColor: '#6366f1', borderWidth: 3, tension: 0.4, pointBackgroundColor: '#0f172a', pointBorderColor: '#6366f1', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 8, backgroundColor: gradient8D, fill: true }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'Focus Capacity (%)', color: '#64748b' }, grid: { color: 'rgba(255, 255, 255, 0.05)' }, border: { display: false } },
+                        x: { grid: { display: false }, border: { display: false } }
+                    }
+                }
+            });
+
+            const componentData = {
+                0: { title: 'LFO Auto-Panning', color: 'text-brand-indigo', desc: 'Slow panning supports bilateral stimulation.', prompt: 'Slow auto-pan automation, 10-second LFO cycle left to right.' },
+                1: { title: 'Large Hall Reverb', color: 'text-brand-purple', desc: 'Reverb pushes perceived source outside the head.', prompt: 'Large cathedral reverb, 60% wet mix, high diffusion.' },
+                2: { title: 'Doppler EQ Filtering', color: 'text-brand-teal', desc: 'EQ shifts reinforce front/back motion illusion.', prompt: 'Dynamic EQ shifting, muffled high-end on rear pan simulating doppler.' },
+                3: { title: 'Binaural Beating', color: 'text-brand-neon', desc: 'Subtle interaural frequency offset supports focus.', prompt: 'Embed 14Hz Beta binaural beats underneath the main track.' },
+                4: { title: 'Vocal Absence', color: 'text-slate-400', desc: 'No vocals to reduce language network interference.', prompt: 'Strictly instrumental, absolutely no vocals or human speech.' }
+            };
+
+            const ctxComponents = document.getElementById('componentsChart').getContext('2d');
+            new Chart(ctxComponents, {
+                type: 'polarArea',
+                data: {
+                    labels: ['Auto-Panning', 'Hall Reverb', 'Doppler EQ', 'Binaural Beating', 'No Vocals'],
+                    datasets: [{ data: [100, 85, 75, 60, 90], backgroundColor: ['rgba(99, 102, 241, 0.6)','rgba(139, 92, 246, 0.6)','rgba(20, 184, 166, 0.6)','rgba(6, 182, 212, 0.6)','rgba(100, 116, 139, 0.6)'], borderColor: '#0f172a', borderWidth: 3, hoverBorderColor: '#ffffff' }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (e, elements) => {
+                        if (!elements.length) return;
+                        const data = componentData[elements[0].index];
+                        const panel = document.getElementById('details-panel');
+                        panel.innerHTML = `<h3 class=\"font-display text-3xl font-bold text-white mb-4\">${data.title}</h3><p class=\"text-slate-400 text-lg leading-relaxed mb-8\">${data.desc}</p><div class=\"p-5 bg-slate-950 rounded-xl border border-slate-800\"><span class=\"font-mono text-sm text-brand-neon\">${data.prompt}</span></div>`;
+                    },
+                    plugins: { legend: { position: 'right', labels: { usePointStyle: true, padding: 20 } } },
+                    scales: { r: { ticks: { display: false }, grid: { color: 'rgba(255,255,255,0.05)' } } }
+                }
+            });
+
+            const speedMap = {
+                '1': { label: 'Slow (12s)', text: 'Very slow, 12-second cycle continuous LFO panning from 100% Left to 100% Right.' },
+                '2': { label: 'Standard (8s)', text: 'Smooth 8-second cycle continuous LFO panning from Left to Right.' },
+                '3': { label: 'Fast (4s)', text: 'Fast 4-second cycle continuous LFO panning from Left to Right.' }
+            };
+
+            const speedSlider = document.getElementById('panning-speed');
+            const speedLabel = document.getElementById('panning-label');
+            speedSlider.addEventListener('input', (e) => speedLabel.textContent = speedMap[e.target.value].label);
+
+            document.getElementById('generate-btn').addEventListener('click', () => {
+                const task = document.getElementById('task-select').value;
+                const genre = document.getElementById('genre-select').value;
+                const speed = speedMap[speedSlider.value].text;
+                const structure = task === 'deep-work' ? 'Driving, repetitive, predictable rhythm. 70 BPM.' : task === 'reading' ? 'Floating, drone-like, very minimal percussion. Wash of sound. 50 BPM.' : 'Uplifting warm textures, steady heartbeat rhythm. 80 BPM.';
+                const prompt = `Generate an audio track optimized for ADHD focus.\n\n[CORE VIBE]\nGenre: ${genre.replace('-', ' ')}\nStructure: ${structure}\nRule: Strictly instrumental, ABSOLUTELY NO VOCALS or human speech.\n\n[SPATIAL / 8D PARAMETERS]\n1. Panning: ${speed}\n2. Reverb: Large Cathedral/Cavern reverb (60-70% wet).\n3. EQ: Dynamic EQ filtering for doppler impression.\n4. Binaural: Embed a subtle continuous 14Hz difference between channels.\n\nEnsure the final render highlights wide stereo movement cleanly.`;
+                document.getElementById('prompt-output').value = prompt;
+            });
+
+            document.getElementById('copy-btn').addEventListener('click', function () {
+                const output = document.getElementById('prompt-output');
+                if (!output.value) return;
+                output.select();
+                output.setSelectionRange(0, 99999);
+                try {
+                    document.execCommand('copy');
+                    const oldText = this.textContent;
+                    this.textContent = 'Copied';
+                    setTimeout(() => { this.textContent = oldText; }, 1500);
+                } catch (e) {
+                    console.error(e);
+                }
+                window.getSelection().removeAllRanges();
+            });
+
+            document.getElementById('generate-btn').click();
+        });
+    </script>
+</body>
+</html>
