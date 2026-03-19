@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "my-soundscape-app",
-    "slug": "my-soundscape-app",
+    "name": "Tech & Tonic Soundscape",
+    "slug": "techandtonic-featured-soundscape",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -24,6 +24,11 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
+      "name": "Tech & Tonic Featured Web App",
+      "shortName": "T&T Soundscape",
+      "description": "Featured AI soundscape app by Tech & Tonic.",
+      "bundler": "metro",
+      "output": "single",
       "favicon": "./assets/favicon.png"
     }
   }
