@@ -27,6 +27,7 @@ const STEM_SOURCES: StemSources = {
 };
 
 type AppStage = 'onboarding' | 'paywall' | 'player';
+const SESSION_OPTIONS = [15, 30, 45, 60];
 
 export default function App() {
   const engineRef = useRef(new SoundscapeEngine());
@@ -37,6 +38,8 @@ export default function App() {
   const [hasStems, setHasStems] = useState(false);
   const [stage, setStage] = useState<AppStage>('onboarding');
   const [intent, setIntent] = useState<SoundscapeMode>('Focus');
+  const [sessionMinutes, setSessionMinutes] = useState(30);
+  const [secondsLeft, setSecondsLeft] = useState(30 * 60);
 
   useEffect(() => {
     let mounted = true;
@@ -58,6 +61,35 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isPlaying) {
+      setSecondsLeft(sessionMinutes * 60);
+    }
+  }, [sessionMinutes, isPlaying]);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => Math.max(prev - 1, 0));
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (!isPlaying || secondsLeft > 0) {
+      return;
+    }
+
+    void engineRef.current.pause();
+    setIsPlaying(false);
+  }, [isPlaying, secondsLeft]);
+
   const handlePlaybackToggle = async () => {
     if (!isReady || !hasStems) {
       return;
@@ -67,6 +99,10 @@ export default function App() {
       await engineRef.current.pause();
       setIsPlaying(false);
       return;
+    }
+
+    if (secondsLeft === 0) {
+      setSecondsLeft(sessionMinutes * 60);
     }
 
     await engineRef.current.play();
@@ -109,14 +145,35 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <View style={styles.bgOrbTop} />
+      <View style={styles.bgOrbBottom} />
       <View style={styles.playerContainer}>
-        <Text style={styles.kicker}>Generative Prototype</Text>
-        <Text style={styles.title}>Soundscape</Text>
-        <Text style={styles.subtitle}>Mode: {mode}</Text>
+        <Text style={styles.kicker}>Neuro-Friendly Soundscapes</Text>
+        <Text style={styles.title}>Find Your Rhythm</Text>
+        <Text style={styles.subtitle}>Current mode: {mode}</Text>
+
+        <View style={styles.timerCard}>
+          <Text style={styles.timerLabel}>Session timer</Text>
+          <Text style={styles.timerValue}>{formatClock(secondsLeft)}</Text>
+          <Text style={styles.timerHint}>Choose a short sprint or longer immersion.</Text>
+          <View style={styles.sessionRow}>
+            {SESSION_OPTIONS.map((minutes) => (
+              <Pressable
+                key={minutes}
+                style={[styles.sessionChip, sessionMinutes === minutes && styles.sessionChipActive]}
+                onPress={() => setSessionMinutes(minutes)}
+              >
+                <Text style={[styles.sessionChipText, sessionMinutes === minutes && styles.sessionChipTextActive]}>
+                  {minutes}m
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
 
         {!isReady && (
           <View style={styles.loadingRow}>
-            <ActivityIndicator color="#f2efe8" />
+            <ActivityIndicator color="#fff8e6" />
             <Text style={styles.loadingText}>Preparing audio engine...</Text>
           </View>
         )}
@@ -127,6 +184,7 @@ export default function App() {
           </Text>
         )}
 
+        <Text style={styles.sectionLabel}>Choose a listening mode</Text>
         <View style={styles.modeRow}>
           <ModeButton
             label="Focus"
@@ -155,8 +213,15 @@ export default function App() {
           onPress={handlePlaybackToggle}
           disabled={!isReady || !hasStems}
         >
-          <Text style={styles.playButtonText}>{isPlaying ? 'Pause' : 'Play'}</Text>
+          <Text style={styles.playButtonText}>{isPlaying ? 'Pause Session' : 'Start Session'}</Text>
         </Pressable>
+
+        <View style={styles.tipCard}>
+          <Text style={styles.tipTitle}>Focus cue</Text>
+          <Text style={styles.tipText}>
+            Keep one tab open, one task active, and let the soundscape run until the timer completes.
+          </Text>
+        </View>
 
         <Pressable style={styles.secondaryLink} onPress={() => setStage('paywall')}>
           <Text style={styles.secondaryLinkText}>View subscription screen</Text>
@@ -176,9 +241,11 @@ function OnboardingScreen({ onContinue }: OnboardingScreenProps) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.bgOrbTop} />
+      <View style={styles.bgOrbBottom} />
       <Text style={styles.kicker}>Step 1 of 2</Text>
-      <Text style={styles.title}>When do you need support most?</Text>
-      <Text style={styles.subtitle}>Pick your primary intent. You can switch modes later anytime.</Text>
+      <Text style={styles.title}>What do you need right now?</Text>
+      <Text style={styles.subtitle}>Select one intention now. You can switch anytime later.</Text>
 
       <View style={styles.intentGrid}>
         <ModeButton
@@ -219,9 +286,11 @@ type PaywallScreenProps = {
 function PaywallScreen({ intent, onStartTrial, onBack }: PaywallScreenProps) {
   return (
     <View style={styles.container}>
+      <View style={styles.bgOrbTop} />
+      <View style={styles.bgOrbBottom} />
       <Text style={styles.kicker}>Step 2 of 2</Text>
       <Text style={styles.title}>Start Your 7-Day Trial</Text>
-      <Text style={styles.subtitle}>Best for {intent.toLowerCase()} right now</Text>
+      <Text style={styles.subtitle}>Personalized for {intent.toLowerCase()} right now</Text>
 
       <View style={styles.card}>
         <Text style={styles.cardPrice}>$59.99/year</Text>
@@ -257,38 +326,108 @@ function ModeButton({ label, selected, onPress }: ModeButtonProps) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#171b24',
+    backgroundColor: '#0f172a',
   },
   container: {
     flex: 1,
-    backgroundColor: '#171b24',
+    backgroundColor: '#0f172a',
     paddingHorizontal: 24,
     justifyContent: 'center',
     paddingBottom: 24,
   },
   playerContainer: {
     flex: 1,
-    backgroundColor: '#171b24',
+    backgroundColor: '#0f172a',
     paddingHorizontal: 24,
     justifyContent: 'center',
+  },
+  bgOrbTop: {
+    position: 'absolute',
+    top: -60,
+    right: -40,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: 'rgba(0, 199, 190, 0.22)',
+  },
+  bgOrbBottom: {
+    position: 'absolute',
+    bottom: -70,
+    left: -30,
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: 'rgba(255, 196, 87, 0.16)',
   },
   kicker: {
     fontSize: 12,
     letterSpacing: 1.4,
     textTransform: 'uppercase',
-    color: '#9ea7b8',
+    color: '#7dd3fc',
     marginBottom: 10,
+    fontWeight: '700',
   },
   title: {
-    fontSize: 42,
+    fontSize: 40,
     fontWeight: '700',
-    color: '#f2efe8',
+    color: '#fff8e6',
   },
   subtitle: {
     marginTop: 6,
-    marginBottom: 32,
-    fontSize: 18,
-    color: '#bfc7d6',
+    marginBottom: 22,
+    fontSize: 19,
+    color: '#c7d2fe',
+    lineHeight: 26,
+  },
+  timerCard: {
+    borderWidth: 1,
+    borderColor: '#334155',
+    borderRadius: 18,
+    padding: 14,
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    marginBottom: 18,
+  },
+  timerLabel: {
+    color: '#93c5fd',
+    fontSize: 13,
+    marginBottom: 6,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  timerValue: {
+    color: '#fff8e6',
+    fontSize: 34,
+    fontWeight: '800',
+  },
+  timerHint: {
+    color: '#bfd5ff',
+    marginTop: 2,
+    marginBottom: 10,
+  },
+  sessionRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  sessionChip: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#3b82f6',
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(30, 41, 59, 0.9)',
+  },
+  sessionChipActive: {
+    borderColor: '#fcd34d',
+    backgroundColor: '#f59e0b',
+  },
+  sessionChipText: {
+    color: '#bfdbfe',
+    fontWeight: '700',
+  },
+  sessionChipTextActive: {
+    color: '#1e293b',
   },
   loadingRow: {
     flexDirection: 'row',
@@ -297,12 +436,20 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginLeft: 10,
-    color: '#dde4f2',
+    color: '#dbeafe',
   },
   notice: {
-    color: '#fde8aa',
+    color: '#fde68a',
     marginBottom: 20,
     lineHeight: 20,
+  },
+  sectionLabel: {
+    color: '#cbd5e1',
+    fontSize: 14,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 10,
+    fontWeight: '700',
   },
   modeRow: {
     flexDirection: 'row',
@@ -318,55 +465,72 @@ const styles = StyleSheet.create({
   },
   modeButton: {
     borderWidth: 1,
-    borderColor: '#4c5567',
+    borderColor: '#334155',
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 18,
-    backgroundColor: '#242b39',
+    backgroundColor: 'rgba(15, 23, 42, 0.86)',
   },
   modeButtonActive: {
-    borderColor: '#f2efe8',
-    backgroundColor: '#3a4357',
+    borderColor: '#fcd34d',
+    backgroundColor: '#0369a1',
   },
   modeButtonText: {
-    color: '#c7cfdd',
+    color: '#cbd5e1',
     fontSize: 16,
     fontWeight: '600',
   },
   modeButtonTextActive: {
-    color: '#ffffff',
+    color: '#fff8e6',
   },
   playButton: {
     borderRadius: 18,
     paddingVertical: 16,
     alignItems: 'center',
-    backgroundColor: '#f2efe8',
+    backgroundColor: '#fcd34d',
   },
   playButtonText: {
     fontSize: 18,
-    color: '#111722',
+    color: '#0f172a',
     fontWeight: '700',
   },
   buttonDisabled: {
     opacity: 0.45,
   },
+  tipCard: {
+    marginTop: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#334155',
+    backgroundColor: 'rgba(15, 23, 42, 0.7)',
+    padding: 12,
+  },
+  tipTitle: {
+    color: '#7dd3fc',
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  tipText: {
+    color: '#dbeafe',
+    lineHeight: 20,
+  },
   card: {
     borderWidth: 1,
-    borderColor: '#4c5567',
+    borderColor: '#334155',
     borderRadius: 18,
     paddingVertical: 18,
     paddingHorizontal: 16,
     marginBottom: 18,
-    backgroundColor: '#242b39',
+    backgroundColor: 'rgba(15, 23, 42, 0.84)',
   },
   cardPrice: {
-    color: '#f2efe8',
+    color: '#fff8e6',
     fontSize: 28,
     fontWeight: '700',
     marginBottom: 8,
   },
   cardDetail: {
-    color: '#c7cfdd',
+    color: '#dbeafe',
     lineHeight: 20,
     marginBottom: 4,
   },
@@ -375,7 +539,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   secondaryLinkText: {
-    color: '#bfc7d6',
+    color: '#93c5fd',
     textDecorationLine: 'underline',
   },
 });
+
+function formatClock(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  const mm = String(minutes).padStart(2, '0');
+  const ss = String(seconds).padStart(2, '0');
+  return `${mm}:${ss}`;
+}

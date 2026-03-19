@@ -68,10 +68,16 @@ const MODE_MIX: Record<SoundscapeMode, ModeMix> = {
 };
 
 const FADE_STEP_MS = 100;
+const EVOLUTION_INTERVAL_MS = 45000;
+const EVOLUTION_FADE_MS = 10000;
+
+const EVOLVING_TEXTURES: StemKey[] = ['textureA', 'textureB', 'textureC', 'textureD', 'textureE'];
 
 export class SoundscapeEngine {
   private sounds: Partial<Record<StemKey, Audio.Sound>> = {};
   private volumes: ModeMix = { ...MODE_MIX.Focus };
+  private activeMode: SoundscapeMode = 'Focus';
+  private evolutionTimer: ReturnType<typeof setInterval> | null = null;
 
   async init(stemSources: StemSources): Promise<void> {
     await Audio.setAudioModeAsync({
@@ -84,6 +90,8 @@ export class SoundscapeEngine {
     for (const key of STEM_KEYS) {
       this.sounds[key] = await this.loadStem(stemSources[key], MODE_MIX.Focus[key]);
     }
+
+    await this.randomizeStemOffsets();
   }
 
   hasLoadedStems(): boolean {
@@ -93,24 +101,23 @@ export class SoundscapeEngine {
   async play(): Promise<void> {
     const playable = STEM_KEYS.map((key) => this.sounds[key]?.playAsync());
     await Promise.all(playable);
+    this.startEvolutionLoop();
   }
 
   async pause(): Promise<void> {
+    this.stopEvolutionLoop();
     const playable = STEM_KEYS.map((key) => this.sounds[key]?.pauseAsync());
     await Promise.all(playable);
   }
 
   async setMode(mode: SoundscapeMode, fadeMs = 1200): Promise<void> {
+    this.activeMode = mode;
     const mix = MODE_MIX[mode];
-    const fades = STEM_KEYS.map((key) =>
-      this.fadeSoundVolume(this.sounds[key] ?? null, this.volumes[key], mix[key], fadeMs)
-    );
-
-    await Promise.all(fades);
-    this.volumes = { ...mix };
+    await this.applyMix(mix, fadeMs);
   }
 
   async dispose(): Promise<void> {
+    this.stopEvolutionLoop();
     const unloads = STEM_KEYS.map((key) => this.sounds[key]?.unloadAsync());
     await Promise.all(unloads);
 
@@ -164,5 +171,93 @@ export class SoundscapeEngine {
     return new Promise((resolve) => {
       setTimeout(resolve, ms);
     });
+  }
+
+  private async applyMix(mix: ModeMix, fadeMs: number): Promise<void> {
+    const fades = STEM_KEYS.map((key) =>
+      this.fadeSoundVolume(this.sounds[key] ?? null, this.volumes[key], mix[key], fadeMs)
+    );
+
+    await Promise.all(fades);
+    this.volumes = { ...mix };
+  }
+
+  private startEvolutionLoop(): void {
+    this.stopEvolutionLoop();
+
+    this.evolutionTimer = setInterval(() => {
+      void this.evolveActiveMix();
+    }, EVOLUTION_INTERVAL_MS);
+  }
+
+  private stopEvolutionLoop(): void {
+    if (!this.evolutionTimer) {
+      return;
+    }
+
+    clearInterval(this.evolutionTimer);
+    this.evolutionTimer = null;
+  }
+
+  private async evolveActiveMix(): Promise<void> {
+    const baseMix = MODE_MIX[this.activeMode];
+    const evolvedMix: ModeMix = { ...baseMix };
+
+    for (const key of EVOLVING_TEXTURES) {
+      const drift = this.randomFloat(-0.08, 0.08);
+      evolvedMix[key] = this.clamp(baseMix[key] + drift, 0, 1);
+    }
+
+    await this.applyMix(evolvedMix, EVOLUTION_FADE_MS);
+    await this.randomSeekOneTexture();
+  }
+
+  private async randomizeStemOffsets(): Promise<void> {
+    for (const key of STEM_KEYS) {
+      const sound = this.sounds[key];
+      if (!sound) {
+        continue;
+      }
+
+      const status = await sound.getStatusAsync();
+      if (!status.isLoaded || !status.durationMillis || status.durationMillis < 12000) {
+        continue;
+      }
+
+      const maxPosition = Math.floor(status.durationMillis * 0.78);
+      const randomOffset = Math.floor(Math.random() * maxPosition);
+      await sound.setPositionAsync(randomOffset);
+    }
+  }
+
+  private async randomSeekOneTexture(): Promise<void> {
+    const available = EVOLVING_TEXTURES.filter((key) => Boolean(this.sounds[key]));
+    if (available.length === 0) {
+      return;
+    }
+
+    const selected = available[Math.floor(Math.random() * available.length)];
+    const sound = this.sounds[selected];
+    if (!sound) {
+      return;
+    }
+
+    const status = await sound.getStatusAsync();
+    if (!status.isLoaded || !status.durationMillis || status.durationMillis < 12000) {
+      return;
+    }
+
+    const minPosition = Math.floor(status.durationMillis * 0.15);
+    const maxPosition = Math.floor(status.durationMillis * 0.85);
+    const randomOffset = Math.floor(this.randomFloat(minPosition, maxPosition));
+    await sound.setPositionAsync(randomOffset);
+  }
+
+  private clamp(value: number, min: number, max: number): number {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  private randomFloat(min: number, max: number): number {
+    return Math.random() * (max - min) + min;
   }
 }
