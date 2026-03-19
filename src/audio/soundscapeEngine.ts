@@ -17,6 +17,7 @@ export type StemSources = {
 };
 
 type ModeMix = Record<StemKey, number>;
+type ModeScene = Partial<Record<StemKey, number>>;
 
 const STEM_KEYS: StemKey[] = [
   'drone',
@@ -28,55 +29,52 @@ const STEM_KEYS: StemKey[] = [
   'textureE',
 ];
 
-const MODE_MIX: Record<SoundscapeMode, ModeMix> = {
-  Focus: {
-    drone: 0.32,
-    rhythm: 0.7,
-    textureA: 0.2,
-    textureB: 0.22,
-    textureC: 0.3,
-    textureD: 0.1,
-    textureE: 0.12,
-  },
-  Relax: {
-    drone: 0.62,
-    rhythm: 0.18,
-    textureA: 0.38,
-    textureB: 0.4,
-    textureC: 0.2,
-    textureD: 0.2,
-    textureE: 0.2,
-  },
-  Sleep: {
-    drone: 0.78,
-    rhythm: 0,
-    textureA: 0.5,
-    textureB: 0.35,
-    textureC: 0.08,
-    textureD: 0.45,
-    textureE: 0.5,
-  },
-  Move: {
-    drone: 0.2,
-    rhythm: 0.92,
-    textureA: 0.1,
-    textureB: 0.15,
-    textureC: 0.45,
-    textureD: 0.32,
-    textureE: 0.08,
-  },
+const MASTER_GAIN = 0.42;
+
+const MODE_SCENES: Record<SoundscapeMode, ModeScene[]> = {
+  Focus: [
+    { drone: 0.55, rhythm: 0.45, textureA: 0.22 },
+    { drone: 0.5, rhythm: 0.4, textureC: 0.26 },
+    { drone: 0.52, rhythm: 0.36, textureB: 0.18, textureD: 0.12 },
+  ],
+  Relax: [
+    { drone: 0.58, textureA: 0.26, textureE: 0.2 },
+    { drone: 0.6, textureB: 0.22, textureD: 0.2 },
+    { drone: 0.54, textureA: 0.2, textureC: 0.16, textureE: 0.16 },
+  ],
+  Sleep: [
+    { drone: 0.6, textureE: 0.28, textureD: 0.18 },
+    { drone: 0.64, textureA: 0.2, textureE: 0.22 },
+    { drone: 0.58, textureB: 0.15, textureD: 0.16, textureE: 0.24 },
+  ],
+  Move: [
+    { rhythm: 0.62, drone: 0.24, textureC: 0.18 },
+    { rhythm: 0.58, drone: 0.2, textureA: 0.12, textureC: 0.16 },
+    { rhythm: 0.66, drone: 0.18, textureB: 0.14, textureD: 0.14 },
+  ],
 };
 
 const FADE_STEP_MS = 100;
-const EVOLUTION_INTERVAL_MS = 45000;
-const EVOLUTION_FADE_MS = 10000;
+const EVOLUTION_INTERVAL_MS = 55000;
+const EVOLUTION_FADE_MS = 14000;
 
 const EVOLVING_TEXTURES: StemKey[] = ['textureA', 'textureB', 'textureC', 'textureD', 'textureE'];
 
+const SILENT_MIX: ModeMix = {
+  drone: 0,
+  rhythm: 0,
+  textureA: 0,
+  textureB: 0,
+  textureC: 0,
+  textureD: 0,
+  textureE: 0,
+};
+
 export class SoundscapeEngine {
   private sounds: Partial<Record<StemKey, Audio.Sound>> = {};
-  private volumes: ModeMix = { ...MODE_MIX.Focus };
+  private volumes: ModeMix = { ...SILENT_MIX };
   private activeMode: SoundscapeMode = 'Focus';
+  private activeSceneIndex = 0;
   private evolutionTimer: ReturnType<typeof setInterval> | null = null;
 
   async init(stemSources: StemSources): Promise<void> {
@@ -87,9 +85,13 @@ export class SoundscapeEngine {
       playThroughEarpieceAndroid: false,
     });
 
+    const initialMix = this.sceneToMix(MODE_SCENES.Focus[0]);
+
     for (const key of STEM_KEYS) {
-      this.sounds[key] = await this.loadStem(stemSources[key], MODE_MIX.Focus[key]);
+      this.sounds[key] = await this.loadStem(stemSources[key], initialMix[key]);
     }
+
+    this.volumes = { ...initialMix };
 
     await this.randomizeStemOffsets();
   }
@@ -112,7 +114,8 @@ export class SoundscapeEngine {
 
   async setMode(mode: SoundscapeMode, fadeMs = 1200): Promise<void> {
     this.activeMode = mode;
-    const mix = MODE_MIX[mode];
+    this.activeSceneIndex = 0;
+    const mix = this.sceneToMix(MODE_SCENES[mode][this.activeSceneIndex]);
     await this.applyMix(mix, fadeMs);
   }
 
@@ -200,10 +203,18 @@ export class SoundscapeEngine {
   }
 
   private async evolveActiveMix(): Promise<void> {
-    const baseMix = MODE_MIX[this.activeMode];
+    const scenes = MODE_SCENES[this.activeMode];
+    const nextSceneIndex = this.pickNextSceneIndex(scenes.length, this.activeSceneIndex);
+    this.activeSceneIndex = nextSceneIndex;
+
+    const baseMix = this.sceneToMix(scenes[nextSceneIndex]);
     const evolvedMix: ModeMix = { ...baseMix };
 
     for (const key of EVOLVING_TEXTURES) {
+      if (baseMix[key] < 0.01) {
+        continue;
+      }
+
       const drift = this.randomFloat(-0.08, 0.08);
       evolvedMix[key] = this.clamp(baseMix[key] + drift, 0, 1);
     }
@@ -259,5 +270,29 @@ export class SoundscapeEngine {
 
   private randomFloat(min: number, max: number): number {
     return Math.random() * (max - min) + min;
+  }
+
+  private sceneToMix(scene: ModeScene): ModeMix {
+    const mix: ModeMix = { ...SILENT_MIX };
+
+    for (const key of STEM_KEYS) {
+      const value = scene[key] ?? 0;
+      mix[key] = this.clamp(value * MASTER_GAIN, 0, 1);
+    }
+
+    return mix;
+  }
+
+  private pickNextSceneIndex(sceneCount: number, currentIndex: number): number {
+    if (sceneCount <= 1) {
+      return 0;
+    }
+
+    let next = currentIndex;
+    while (next === currentIndex) {
+      next = Math.floor(Math.random() * sceneCount);
+    }
+
+    return next;
   }
 }
