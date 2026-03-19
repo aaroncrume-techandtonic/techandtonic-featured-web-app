@@ -15,6 +15,8 @@ import {
   type SoundscapeMode,
   type StemSources,
 } from './src/audio/soundscapeEngine';
+import { InfoScreen } from './src/screens/InfoScreen';
+import { GeneratorScreen } from './src/screens/GeneratorScreen';
 
 const STEM_SOURCES: StemSources = {
   drone: require('./Crystalline_Depths.mp3'),
@@ -26,7 +28,7 @@ const STEM_SOURCES: StemSources = {
   textureE: require('./Subliminal_Slumber.mp3'),
 };
 
-type AppStage = 'onboarding' | 'paywall' | 'player';
+type AppStage = 'onboarding' | 'paywall' | 'player' | 'info' | 'generator';
 const SESSION_OPTIONS = [15, 30, 45, 60];
 
 export default function App() {
@@ -40,6 +42,10 @@ export default function App() {
   const [intent, setIntent] = useState<SoundscapeMode>('Focus');
   const [sessionMinutes, setSessionMinutes] = useState(30);
   const [secondsLeft, setSecondsLeft] = useState(30 * 60);
+
+  const handleNavigateTo = (newStage: AppStage) => {
+    setStage(newStage);
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -125,6 +131,24 @@ export default function App() {
     setStage('player');
   };
 
+  if (stage === 'info') {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <InfoScreen onClose={() => setStage('player')} />
+        <StatusBar style="light" />
+      </SafeAreaView>
+    );
+  }
+
+  if (stage === 'generator') {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <GeneratorScreen onClose={() => setStage('player')} />
+        <StatusBar style="light" />
+      </SafeAreaView>
+    );
+  }
+
   if (stage === 'onboarding') {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -148,7 +172,7 @@ export default function App() {
       <View style={styles.bgOrbTop} />
       <View style={styles.bgOrbBottom} />
       <View style={styles.playerContainer}>
-        <Text style={styles.kicker}>Neuro-Friendly Soundscapes</Text>
+        <Text style={styles.kicker}>8D Audio for ADHD</Text>
         <Text style={styles.title}>Find Your Rhythm</Text>
         <Text style={styles.subtitle}>Current mode: {mode}</Text>
 
@@ -223,6 +247,15 @@ export default function App() {
           </Text>
         </View>
 
+        <View style={styles.navRow}>
+          <Pressable style={styles.navButton} onPress={() => handleNavigateTo('info')}>
+            <Text style={styles.navButtonText}>Learn the Science</Text>
+          </Pressable>
+          <Pressable style={styles.navButton} onPress={() => handleNavigateTo('generator')}>
+            <Text style={styles.navButtonText}>AI Generator</Text>
+          </Pressable>
+        </View>
+
         <Pressable style={styles.secondaryLink} onPress={() => setStage('paywall')}>
           <Text style={styles.secondaryLinkText}>View subscription screen</Text>
         </Pressable>
@@ -243,9 +276,9 @@ function OnboardingScreen({ onContinue }: OnboardingScreenProps) {
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.bgOrbTop} />
       <View style={styles.bgOrbBottom} />
-      <Text style={styles.kicker}>Step 1 of 2</Text>
-      <Text style={styles.title}>What do you need right now?</Text>
-      <Text style={styles.subtitle}>Select one intention now. You can switch anytime later.</Text>
+      <Text style={styles.kicker}>8D Audio for ADHD | Step 1 of 2</Text>
+      <Text style={styles.title}>Anchor Your Focus</Text>
+      <Text style={styles.subtitle}>Choose your intention. 8D spatial audio will handle the rest.</Text>
 
       <View style={styles.intentGrid}>
         <ModeButton
@@ -288,14 +321,15 @@ function PaywallScreen({ intent, onStartTrial, onBack }: PaywallScreenProps) {
     <View style={styles.container}>
       <View style={styles.bgOrbTop} />
       <View style={styles.bgOrbBottom} />
-      <Text style={styles.kicker}>Step 2 of 2</Text>
-      <Text style={styles.title}>Start Your 7-Day Trial</Text>
-      <Text style={styles.subtitle}>Personalized for {intent.toLowerCase()} right now</Text>
+      <Text style={styles.kicker}>8D Audio for ADHD | Step 2 of 2</Text>
+      <Text style={styles.title}>Start Your Free Trial</Text>
+      <Text style={styles.subtitle}>Optimized for {intent.toLowerCase()} with bilateral spatial anchoring</Text>
 
       <View style={styles.card}>
         <Text style={styles.cardPrice}>$59.99/year</Text>
-        <Text style={styles.cardDetail}>Then billed annually after trial unless canceled.</Text>
-        <Text style={styles.cardDetail}>Includes Focus, Relax, Sleep, and Move soundscapes.</Text>
+        <Text style={styles.cardDetail}>Includes 4 ADHD-optimized modes with 8D spatial audio.</Text>
+        <Text style={styles.cardDetail}>Auto-panning, reverb, doppler filtering, and binaural beating.</Text>
+        <Text style={styles.cardDetail}>Free 7-day trial—cancel anytime.</Text>
       </View>
 
       <Pressable style={styles.playButton} onPress={onStartTrial}>
@@ -541,6 +575,26 @@ const styles = StyleSheet.create({
   secondaryLinkText: {
     color: '#93c5fd',
     textDecorationLine: 'underline',
+  },
+  navRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+  },
+  navButton: {
+    flex: 1,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#334155',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(30, 41, 59, 0.7)',
+  },
+  navButtonText: {
+    color: '#dbeafe',
+    fontWeight: '600',
+    fontSize: 13,
+    textAlign: 'center',
   },
 });
 
