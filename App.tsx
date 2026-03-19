@@ -17,6 +17,7 @@ import {
 } from './src/audio/soundscapeEngine';
 import { InfoScreen } from './src/screens/InfoScreen';
 import { GeneratorScreen } from './src/screens/GeneratorScreen';
+import { ResearchScreen } from './src/screens/ResearchScreen';
 
 const STEM_SOURCES: StemSources = {
   drone: require('./Crystalline_Depths.mp3'),
@@ -28,7 +29,7 @@ const STEM_SOURCES: StemSources = {
   textureE: require('./Subliminal_Slumber.mp3'),
 };
 
-type AppStage = 'onboarding' | 'paywall' | 'player' | 'info' | 'generator';
+type AppStage = 'onboarding' | 'paywall' | 'player' | 'info' | 'generator' | 'research';
 const SESSION_OPTIONS = [15, 30, 45, 60];
 
 export default function App() {
@@ -149,6 +150,15 @@ export default function App() {
     );
   }
 
+  if (stage === 'research') {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <ResearchScreen onClose={() => setStage('player')} />
+        <StatusBar style="light" />
+      </SafeAreaView>
+    );
+  }
+
   if (stage === 'onboarding') {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -253,6 +263,9 @@ export default function App() {
           </Pressable>
           <Pressable style={styles.navButton} onPress={() => handleNavigateTo('generator')}>
             <Text style={styles.navButtonText}>AI Generator</Text>
+          </Pressable>
+          <Pressable style={styles.navButton} onPress={() => handleNavigateTo('research')}>
+            <Text style={styles.navButtonText}>Research Notes</Text>
           </Pressable>
         </View>
 

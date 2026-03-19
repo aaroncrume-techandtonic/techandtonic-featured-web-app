@@ -48,9 +48,13 @@ export function GeneratorScreen({ onClose }: GeneratorScreenProps) {
     const structure = taskMap[task];
     const genreLabel = genreMap[genre];
 
-    const prompt = `Generate an audio track optimized for ADHD focus.
+    const prompt = `Generate a three-dimensional, binaurally panned spatial audio track optimized as a non-pharmacological ADHD focus aid.
 
-[CORE VIBE]
+  [COGNITIVE TARGET]
+  State: ${task}
+  Goal: improve attentional stability through bilateral auditory stimulation and predictable novelty.
+
+  [CORE VIBE]
 Genre: ${genreLabel}
 Structure: ${structure}
 Rule: Strictly instrumental, ABSOLUTELY NO VOCALS or human speech.
@@ -59,9 +63,10 @@ Rule: Strictly instrumental, ABSOLUTELY NO VOCALS or human speech.
 1. Panning: ${speedInfo.text}
 2. Reverb: Large Cathedral/Cavern reverb (60-70% wet) for 3D spatial illusion outside the head.
 3. EQ: Dynamic EQ filtering. Muffle high frequencies on the rear pan to simulate doppler effect.
-4. Binaural: Embed a subtle continuous 14Hz difference between L/R channels.
+  4. Binaural: Embed a subtle continuous ~14Hz difference between L/R channels.
+  5. Attention Design: smooth phase-locked repetition, no abrupt drops, clear stereo orbit.
 
-Use this prompt with Suno, Udio, or AudioLDM to generate your custom focus track.`;
+  Use this prompt with Suno, Udio, Stable Audio, MusicGen, or AudioLDM to generate your custom focus track.`;
 
     setGeneratedPrompt(prompt);
   };
@@ -82,11 +87,11 @@ Use this prompt with Suno, Udio, or AudioLDM to generate your custom focus track
         <Pressable onPress={onClose} style={styles.closeButton}>
           <Text style={styles.closeText}>✕</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>Prompt Generator</Text>
+        <Text style={styles.headerTitle}>Research Prompt Generator</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.subtitle}>Generate optimized prompts for AI audio tools (Suno, Udio, AudioLDM) to create your own focus tracks.</Text>
+        <Text style={styles.subtitle}>Generate research-aligned prompts for Suno, Udio, Stable Audio, MusicGen, and AudioLDM.</Text>
 
         {/* Control Group 1 */}
         <View style={styles.controlGroup}>
@@ -194,7 +199,7 @@ Use this prompt with Suno, Udio, or AudioLDM to generate your custom focus track
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          Use this prompt with Suno, Udio, or AudioLDM to create your custom ADHD-optimized focus track.
+          Prompt template encodes bilateral stimulation, entrainment cues, and spatial tracking constraints from your source document.
         </Text>
       </View>
     </ScrollView>

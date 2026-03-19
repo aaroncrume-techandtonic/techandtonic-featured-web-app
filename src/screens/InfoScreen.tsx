@@ -11,30 +11,34 @@ export function InfoScreen({ onClose }: InfoScreenProps) {
         <Pressable onPress={onClose} style={styles.closeButton}>
           <Text style={styles.closeText}>✕</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>The Science Behind 8D</Text>
+        <Text style={styles.headerTitle}>Science of Spatial Focus Audio</Text>
       </View>
 
       {/* Section 1: The Bilateral Anchor */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>The Bilateral Anchor</Text>
         <Text style={styles.sectionText}>
-          ADHD brains often have an under-stimulated prefrontal cortex, causing a constant search for novel stimuli. 8D audio provides continuous, predictable movement that occupies this background craving while anchoring foreground attention.
+          Your source document frames 8D audio as three-dimensional, binaurally panned spatial audio.
+          For ADHD, the goal is non-pharmacological attentional support through bilateral stimulation,
+          predictable movement, and enough novelty to reduce compulsive distraction switching.
         </Text>
 
         <View style={styles.cardGrid}>
           <View style={styles.card}>
             <Text style={styles.cardIcon}>〰️</Text>
-            <Text style={styles.cardTitle}>The "Window Wiper" Effect</Text>
+            <Text style={styles.cardTitle}>Bilateral Stimulation</Text>
             <Text style={styles.cardDesc}>
-              Smooth panning from left to right ear activates alternating brain hemispheres, grounding the nervous system similar to EMDR therapy.
+              Continuous left-right panning provides alternating sensory emphasis that may prevent habituation
+              and stabilize attention through active auditory tracking.
             </Text>
           </View>
 
           <View style={styles.card}>
             <Text style={styles.cardIcon}>⚡</Text>
-            <Text style={styles.cardTitle}>Optimal Arousal</Text>
+            <Text style={styles.cardTitle}>Under-Arousal Compensation</Text>
             <Text style={styles.cardDesc}>
-              Acts as a physiological "fidget spinner," keeping dopamine baseline high enough to prevent your attention from wandering.
+              The model suggests ADHD distractibility is partly an under-stimulation adaptation. Spatial motion can
+              supply structured sensory input without task-breaking interruption.
             </Text>
           </View>
         </View>
@@ -48,40 +52,52 @@ export function InfoScreen({ onClose }: InfoScreenProps) {
           <ComponentCard
             icon="∿"
             title="LFO Auto-Panning"
-            desc="Slow 8-10s cycle pans audio smoothly left to right, creating the grounding bilateral stimulation ideal for ADHD focus."
+            desc="Slow 8-10 second cycles create full-width stereo motion that keeps the brain in a gentle tracking loop."
           />
           <ComponentCard
             icon="☁️"
             title="Large Hall Reverb"
-            desc="Creates illusion of massive physical space. Heavy reverb pushes audio outward, reducing auditory claustrophobia."
+            desc="Pushes source perception outside the head, turning headphones into a simulated acoustic environment."
           />
           <ComponentCard
             icon="🎛️"
             title="Doppler EQ Filtering"
-            desc="High frequencies shift based on panning direction, mimicking Head-Related Transfer Functions for 3D realism."
+            desc="Dynamic front-back filtering sharpens spatial realism and reinforces continuous movement cues."
           />
           <ComponentCard
             icon="🧠"
             title="Binaural Beating"
-            desc="Different frequencies in each ear create a 14Hz difference, encouraging Beta wave focus states."
+            desc="Subtle interaural offset near 14 Hz is used as an entrainment layer for attentional rhythm support."
           />
           <ComponentCard
             icon="🔇"
             title="Vocal Absence"
-            desc="Strictly instrumental—no human speech to engage language centers. Keeps focus uninterrupted."
+            desc="No vocals avoids language-network capture, keeping cognitive bandwidth available for task execution."
           />
         </View>
       </View>
 
       {/* Section 3: How It Helps */}
-      <View style={[styles.section, styles.lastSection]}>
+      <View style={styles.section}>
         <Text style={styles.sectionTitle}>Why This Works for ADHD</Text>
         <View style={styles.bulletList}>
-          <BulletPoint text="Fills the dopamine gap without overwhelming" />
-          <BulletPoint text="Provides predictable novelty" />
-          <BulletPoint text="Grounds wandering attention" />
-          <BulletPoint text="Reduces internal distraction" />
-          <BulletPoint text="Scientifically aligned with bilateral stimulation" />
+          <BulletPoint text="Bilateral motion reduces auditory habituation" />
+          <BulletPoint text="Predictable novelty helps prevent attention drift" />
+          <BulletPoint text="Continuous spatial tracking occupies background stimulus seeking" />
+          <BulletPoint text="Instrumental profile limits semantic interference" />
+          <BulletPoint text="Designed as an adjunct to broader treatment, not a replacement" />
+        </View>
+      </View>
+
+      <View style={[styles.section, styles.lastSection]}>
+        <Text style={styles.sectionTitle}>Source Citations</Text>
+        <View style={styles.bulletList}>
+          <BulletPoint text="[1] 8D audio definition and reported focus effects" />
+          <BulletPoint text="[3] ADHD prevalence and adjunct non-pharmacological need" />
+          <BulletPoint text="[6] Symptom persistence and multimodal treatment limits" />
+          <BulletPoint text="[8] Bilateral stimulation, entrainment, and phase-locking" />
+          <BulletPoint text="[10] Spatial acoustic tracking demand" />
+          <BulletPoint text="[11] AI workflow targets: Suno, Udio, Stable Audio, MusicGen" />
         </View>
       </View>
     </ScrollView>
